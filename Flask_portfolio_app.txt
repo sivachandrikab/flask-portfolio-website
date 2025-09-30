@@ -1,0 +1,127 @@
+from flask import Flask, request, render_template_string, redirect, flash, url_for
+
+app = Flask(__name__)
+app.secret_key = "your_secret_key_here"
+
+INDEX_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Portfolio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background-color: #f0f0f0;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        a {
+            text-decoration: none;
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hello, I'm [Your Name]</h1>
+    <p>Welcome to my portfolio website.</p>
+    <p>I'm a [Your Role or Profession].</p>
+    <p><a href="{{ url_for('contact') }}">Contact Me</a></p>
+</body>
+</html>
+"""
+
+CONTACT_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contact Me</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background-color: #f9f9f9;
+        }
+        form {
+            max-width: 500px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #004999;
+        }
+        .flash {
+            background-color: #ccffcc;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <h2>Contact Me</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash">
+          {% for message in messages %}
+            <p>{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <label>Your Name:</label>
+        <input type="text" name="name" required>
+
+        <label>Your Email:</label>
+        <input type="email" name="email" required>
+
+        <label>Your Message:</label>
+        <textarea name="message" rows="5" required></textarea>
+
+        <button type="submit">Send Message</button>
+    </form>
+    <p><a href="{{ url_for('home') }}">Back to Home</a></p>
+</body>
+</html>
+"""
+
+@app.route('/')
+def home():
+    return render_template_string(INDEX_HTML)
+
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    if request.method == 'POST':
+        # Get form data
+        name = request.form.get('name')
+        email = request.form.get('email')
+        message = request.form.get('message')
+
+        # Print to console (or handle/save/email as needed)
+        print(f"New message from {name} ({email}): {message}")
+
+        flash("Your message has been sent successfully!")
+        return redirect(url_for('contact'))
+
+    return render_template_string(CONTACT_HTML)
+
+if __name__ == '__main__':
+    app.run(debug=True)
